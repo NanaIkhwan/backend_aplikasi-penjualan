@@ -3,6 +3,7 @@ const mysql = require('mysql2');
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -14,6 +15,7 @@ const pool = mysql.createPool({
 // Inisialisasi database dan tabel menggunakan koneksi terpisah (tanpa memilih DB dulu)
 const initConnection = mysql.createConnection({
   host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
 });
