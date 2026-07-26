@@ -1,311 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel - Hardware Store</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0d1b2a;
-      color: #fff;
-      min-height: 100vh;
-    }
-
-    /* ====== LOGIN PAGE ====== */
-    #login-page {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .login-card {
-      background: #1a2a3a;
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-    .login-card .logo {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .login-card .logo span {
-      font-size: 48px;
-    }
-    .login-card h2 {
-      text-align: center;
-      margin-bottom: 4px;
-      font-size: 22px;
-    }
-    .login-card p {
-      text-align: center;
-      color: #888;
-      font-size: 13px;
-      margin-bottom: 28px;
-    }
-
-    /* ====== MAIN APP ====== */
-    #app { display: none; }
-
-    .sidebar {
-      position: fixed;
-      left: 0; top: 0; bottom: 0;
-      width: 240px;
-      background: #1a2a3a;
-      padding: 24px 0;
-      border-right: 1px solid #243447;
-      z-index: 100;
-    }
-    .sidebar .brand {
-      padding: 0 24px 24px;
-      border-bottom: 1px solid #243447;
-      margin-bottom: 16px;
-    }
-    .sidebar .brand h1 { font-size: 16px; font-weight: 700; }
-    .sidebar .brand p { font-size: 11px; color: #888; margin-top: 2px; }
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 24px;
-      color: #aaa;
-      text-decoration: none;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-    .sidebar nav a:hover, .sidebar nav a.active {
-      background: rgba(37, 99, 235, 0.15);
-      color: #60a5fa;
-      border-right: 3px solid #3b82f6;
-    }
-    .sidebar nav a span { font-size: 18px; }
-    .logout-btn {
-      position: absolute;
-      bottom: 24px;
-      left: 0; right: 0;
-      padding: 0 24px;
-    }
-
-    .main-content {
-      margin-left: 240px;
-      padding: 32px;
-      min-height: 100vh;
-    }
-    .page-header {
-      margin-bottom: 28px;
-    }
-    .page-header h2 { font-size: 22px; font-weight: 700; }
-    .page-header p { color: #888; font-size: 13px; margin-top: 4px; }
-
-    /* Cards / Stats */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .stat-card {
-      background: #1a2a3a;
-      border-radius: 14px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .stat-card .icon {
-      width: 48px; height: 48px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-    }
-    .stat-card .info h3 { font-size: 24px; font-weight: 700; }
-    .stat-card .info p { font-size: 12px; color: #888; margin-top: 2px; }
-
-    /* Table */
-    .table-container {
-      background: #1a2a3a;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 24px;
-      border-bottom: 1px solid #243447;
-    }
-    .table-header h3 { font-size: 16px; font-weight: 600; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    thead th {
-      background: #0d1b2a;
-      padding: 12px 24px;
-      text-align: left;
-      font-size: 12px;
-      color: #888;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    tbody td {
-      padding: 14px 24px;
-      border-bottom: 1px solid #243447;
-      font-size: 14px;
-    }
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.02); }
-
-    /* Form */
-    .form-section {
-      background: #1a2a3a;
-      border-radius: 16px;
-      padding: 28px;
-      margin-bottom: 24px;
-    }
-    .form-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group.full { grid-column: 1 / -1; }
-    .form-group label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; }
-    .form-group input, .form-group textarea, .form-group select {
-      background: #0d1b2a;
-      border: 1px solid #243447;
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-      font-family: inherit;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: #3b82f6;
-    }
-    .form-group textarea { resize: vertical; min-height: 90px; }
-
-    /* Buttons */
-    .btn {
-      padding: 11px 20px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-primary { background: #2563eb; color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-danger { background: rgba(220,38,38,0.15); color: #f87171; border: 1px solid rgba(220,38,38,0.3); }
-    .btn-danger:hover { background: rgba(220,38,38,0.25); }
-    .btn-outline { background: transparent; color: #60a5fa; border: 1px solid #3b82f6; }
-    .btn-outline:hover { background: rgba(59,130,246,0.1); }
-    .btn-sm { padding: 6px 14px; font-size: 12px; }
-
-    /* Alerts / Toast */
-    #toast {
-      position: fixed;
-      top: 20px; right: 20px;
-      background: #22c55e;
-      color: #fff;
-      padding: 14px 20px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 9999;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.3s;
-      pointer-events: none;
-    }
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    #toast.error { background: #ef4444; }
-
-    /* Badge */
-    .badge {
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; }
-    .badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
-    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
-
-    .hidden { display: none !important; }
-    .section { display: none; }
-    .section.active { display: block; }
-
-    .input-field { /* reuse form-group input */ }
-    .text-muted { color: #888; }
-    .price-text { color: #60a5fa; font-weight: 700; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s;
-    }
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .modal {
-      background: #1a2a3a;
-      border-radius: 20px;
-      padding: 28px;
-      width: 100%;
-      max-width: 580px;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: scale(0.95);
-      transition: transform 0.25s;
-    }
-    .modal-overlay.open .modal {
-      transform: scale(1);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modal-header h3 { font-size: 18px; font-weight: 700; }
-    .close-btn {
-      background: rgba(255,255,255,0.05);
-      border: none;
-      color: #aaa;
-      font-size: 20px;
-      cursor: pointer;
-      width: 32px; height: 32px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-    }
-    .close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -316,8 +15,8 @@
 <div id="edit-modal" class="modal-overlay" onclick="closeEditModal(event)">
   <div class="modal">
     <div class="modal-header">
-      <h3>✏️ Edit Produk</h3>
-      <button class="close-btn" onclick="closeEditModal()">✕</button>
+      <h3>âœï¸ Edit Produk</h3>
+      <button class="close-btn" onclick="closeEditModal()">âœ•</button>
     </div>
     <form id="edit-product-form" onsubmit="updateProduct(event)">
       <input type="hidden" id="edit-id" />
@@ -366,7 +65,7 @@
       </div>
       <div style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end">
         <button type="button" class="btn btn-outline" onclick="closeEditModal()">Batal</button>
-        <button type="submit" id="edit-submit-btn" class="btn btn-primary">💾 Simpan Perubahan</button>
+        <button type="submit" id="edit-submit-btn" class="btn btn-primary">ðŸ’¾ Simpan Perubahan</button>
       </div>
     </form>
   </div>
@@ -377,7 +76,7 @@
 <!-- =============================== -->
 <div id="login-page">
   <div class="login-card">
-    <div class="logo"><span>🖥️</span></div>
+    <div class="logo"><span>ðŸ–¥ï¸</span></div>
     <h2>Hardware Store Admin</h2>
     <p>Masuk dengan akun administrator</p>
 
@@ -388,7 +87,7 @@
       </div>
       <div class="form-group" style="margin-bottom:20px">
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••" required />
+        <input type="password" id="login-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required />
       </div>
       <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
         Masuk ke Admin Panel
@@ -404,26 +103,26 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="brand">
-      <h1>🖥️ Hardware Store</h1>
+      <h1>ðŸ–¥ï¸ Hardware Store</h1>
       <p>Admin Panel</p>
     </div>
     <nav>
       <a href="#" class="active" onclick="showSection('dashboard', this)">
-        <span>📊</span> Dashboard
+        <span>ðŸ“Š</span> Dashboard
       </a>
       <a href="#" onclick="showSection('products', this)">
-        <span>📦</span> Kelola Produk
+        <span>ðŸ“¦</span> Kelola Produk
       </a>
       <a href="#" onclick="showSection('orders', this)">
-        <span>🧾</span> Pesanan Masuk
+        <span>ðŸ§¾</span> Pesanan Masuk
       </a>
       <a href="#" onclick="showSection('settings', this)">
-        <span>⚙️</span> Pengaturan Akun
+        <span>âš™ï¸</span> Pengaturan Akun
       </a>
     </nav>
     <div class="logout-btn">
       <button class="btn btn-danger" style="width:100%; justify-content:center" onclick="logout()">
-        🚪 Logout
+        ðŸšª Logout
       </button>
     </div>
   </div>
@@ -439,21 +138,21 @@
       </div>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="icon" style="background:rgba(59,130,246,0.15)">📦</div>
+          <div class="icon" style="background:rgba(59,130,246,0.15)">ðŸ“¦</div>
           <div class="info">
             <h3 id="stat-products">-</h3>
             <p>Total Produk</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="icon" style="background:rgba(34,197,94,0.15)">🧾</div>
+          <div class="icon" style="background:rgba(34,197,94,0.15)">ðŸ§¾</div>
           <div class="info">
             <h3 id="stat-orders">-</h3>
             <p>Total Pesanan</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="icon" style="background:rgba(245,158,11,0.15)">💰</div>
+          <div class="icon" style="background:rgba(245,158,11,0.15)">ðŸ’°</div>
           <div class="info">
             <h3 id="stat-revenue">-</h3>
             <p>Total Pendapatan</p>
@@ -494,7 +193,7 @@
 
       <!-- Form Tambah Produk -->
       <div class="form-section">
-        <h3>➕ Tambah Produk Baru</h3>
+        <h3>âž• Tambah Produk Baru</h3>
         <form id="add-product-form" onsubmit="addProduct(event)">
           <div class="form-grid">
             <div class="form-group">
@@ -525,7 +224,7 @@
                 style="border:2px dashed #243447; border-radius:10px; padding:20px; text-align:center;
                        cursor:pointer; transition:border-color 0.2s; background:#0d1b2a">
                 <div id="upload-placeholder">
-                  <div style="font-size:32px; margin-bottom:6px">📁</div>
+                  <div style="font-size:32px; margin-bottom:6px">ðŸ“</div>
                   <div style="color:#888; font-size:13px">Klik untuk pilih gambar</div>
                   <div style="color:#555; font-size:11px; margin-top:4px">JPG, PNG, WEBP (maks. 5MB)</div>
                 </div>
@@ -543,7 +242,7 @@
             </div>
           </div>
           <div style="margin-top:16px">
-            <button type="submit" class="btn btn-primary">💾 Simpan Produk</button>
+            <button type="submit" class="btn btn-primary">ðŸ’¾ Simpan Produk</button>
           </div>
         </form>
       </div>
@@ -552,7 +251,7 @@
       <div class="table-container">
         <div class="table-header">
           <h3>Daftar Produk</h3>
-          <button class="btn btn-outline btn-sm" onclick="loadProducts()">🔄 Refresh</button>
+          <button class="btn btn-outline btn-sm" onclick="loadProducts()">ðŸ”„ Refresh</button>
         </div>
         <table>
           <thead>
@@ -581,7 +280,7 @@
       <div class="table-container">
         <div class="table-header">
           <h3>Semua Pesanan</h3>
-          <button class="btn btn-outline btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+          <button class="btn btn-outline btn-sm" onclick="loadOrders()">ðŸ”„ Refresh</button>
         </div>
         <table>
           <thead>
@@ -623,7 +322,7 @@
           </div>
           
           <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-            💾 Simpan Perubahan
+            ðŸ’¾ Simpan Perubahan
           </button>
         </form>
       </div>
@@ -795,8 +494,8 @@
               <span class="badge ${p.stock > 0 ? 'badge-green' : 'badge-red'}">${p.stock} pcs</span>
             </td>
             <td style="display:flex;gap:6px">
-              <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Hapus</button>
+              <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>âœï¸ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">ðŸ—‘ï¸ Hapus</button>
             </td>
           </tr>`).join('');
     } catch (err) {
@@ -808,14 +507,14 @@
     e.preventDefault();
     const submitBtn = e.target.querySelector('button[type=submit]');
     submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ Menyimpan...';
+    submitBtn.textContent = 'â³ Menyimpan...';
 
     try {
       // Step 1: Upload gambar jika ada file yang dipilih
       let imageUrl = '';
       const fileInput = document.getElementById('p-image-file');
       if (fileInput.files.length > 0) {
-        document.getElementById('upload-status').textContent = '⏳ Mengupload gambar...';
+        document.getElementById('upload-status').textContent = 'â³ Mengupload gambar...';
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         const uploadRes = await fetch(`${API}/upload`, {
@@ -826,11 +525,11 @@
         const uploadResult = await uploadRes.json();
         if (uploadResult.imageUrl) {
           imageUrl = uploadResult.imageUrl;
-          document.getElementById('upload-status').textContent = '✅ Gambar berhasil diupload!';
+          document.getElementById('upload-status').textContent = 'âœ… Gambar berhasil diupload!';
         } else {
           showToast(uploadResult.error || 'Gagal upload gambar', true);
           submitBtn.disabled = false;
-          submitBtn.textContent = '💾 Simpan Produk';
+          submitBtn.textContent = 'ðŸ’¾ Simpan Produk';
           return;
         }
       }
@@ -852,7 +551,7 @@
       });
       const result = await res.json();
       if (result.productId) {
-        showToast('✅ Produk berhasil ditambahkan!');
+        showToast('âœ… Produk berhasil ditambahkan!');
         document.getElementById('add-product-form').reset();
         // Reset preview gambar
         document.getElementById('img-preview').style.display = 'none';
@@ -937,14 +636,14 @@
     const id = document.getElementById('edit-id').value;
     const submitBtn = document.getElementById('edit-submit-btn');
     submitBtn.disabled = true;
-    submitBtn.textContent = '⏳ Menyimpan...';
+    submitBtn.textContent = 'â³ Menyimpan...';
 
     try {
       // Upload gambar baru jika ada file yang dipilih
       let imageUrl = document.getElementById('edit-product-form').dataset.currentImageUrl;
       const fileInput = document.getElementById('edit-image-file');
       if (fileInput.files.length > 0) {
-        document.getElementById('edit-upload-status').textContent = '⏳ Mengupload gambar baru...';
+        document.getElementById('edit-upload-status').textContent = 'â³ Mengupload gambar baru...';
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         const uploadRes = await fetch(`${API}/upload`, {
@@ -955,11 +654,11 @@
         const uploadResult = await uploadRes.json();
         if (uploadResult.imageUrl) {
           imageUrl = uploadResult.imageUrl;
-          document.getElementById('edit-upload-status').textContent = '✅ Gambar berhasil diupdate!';
+          document.getElementById('edit-upload-status').textContent = 'âœ… Gambar berhasil diupdate!';
         } else {
           showToast(uploadResult.error || 'Gagal upload gambar', true);
           submitBtn.disabled = false;
-          submitBtn.textContent = '💾 Simpan Perubahan';
+          submitBtn.textContent = 'ðŸ’¾ Simpan Perubahan';
           return;
         }
       }
@@ -982,7 +681,7 @@
       const result = await res.json();
 
       if (result.message) {
-        showToast('✅ Produk berhasil diupdate!');
+        showToast('âœ… Produk berhasil diupdate!');
         document.getElementById('edit-modal').classList.remove('open');
         loadProducts();
         loadDashboard();
@@ -993,7 +692,7 @@
       showToast('Tidak dapat terhubung ke server!', true);
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = '💾 Simpan Perubahan';
+      submitBtn.textContent = 'ðŸ’¾ Simpan Perubahan';
     }
   }
 
@@ -1006,7 +705,7 @@
       });
       const result = await res.json();
       if (result.message) {
-        showToast('🗑️ Produk dihapus');
+        showToast('ðŸ—‘ï¸ Produk dihapus');
         loadProducts();
         loadDashboard();
       } else {
@@ -1079,3 +778,4 @@
 </script>
 </body>
 </html>
+
