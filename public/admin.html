@@ -382,12 +382,18 @@
     loadDashboard();
     loadProducts();
     loadOrders();
+
+    // Restore tab yang aktif sebelumnya
+    const savedSection = localStorage.getItem('activeAdminSection') || 'dashboard';
+    const navItem = document.querySelector(`.sidebar nav a[onclick*="${savedSection}"]`);
+    showSection(savedSection, navItem);
   }
 
   // =============================
   // NAVIGATION
   // =============================
   function showSection(name, el) {
+    localStorage.setItem('activeAdminSection', name);
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById('section-' + name).classList.add('active');
     document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
