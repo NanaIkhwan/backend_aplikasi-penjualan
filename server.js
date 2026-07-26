@@ -11,6 +11,11 @@ const db = require('./database');
 const app = express();
 app.use(cors());
 app.use(express.json());
+// Redirect root ke halaman admin login
+app.get('/', (req, res) => {
+  res.redirect('/admin/admin.html');
+});
+
 // Serve halaman admin dari folder public/
 app.use('/admin', express.static(path.join(__dirname, 'public')));
 // Serve folder uploads agar gambar bisa diakses dari Flutter/browser
