@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Hardware Store</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1b2a;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ====== LOGIN PAGE ====== */
+    #login-page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .login-card {
+      background: #1a2a3a;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .login-card .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .login-card .logo span {
+      font-size: 48px;
+    }
+    .login-card h2 {
+      text-align: center;
+      margin-bottom: 4px;
+      font-size: 22px;
+    }
+    .login-card p {
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    /* ====== MAIN APP ====== */
+    #app { display: none; }
+
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 240px;
+      background: #1a2a3a;
+      padding: 24px 0;
+      border-right: 1px solid #243447;
+      z-index: 100;
+    }
+    .sidebar .brand {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid #243447;
+      margin-bottom: 16px;
+    }
+    .sidebar .brand h1 { font-size: 16px; font-weight: 700; }
+    .sidebar .brand p { font-size: 11px; color: #888; margin-top: 2px; }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-right: 3px solid #3b82f6;
+    }
+    .sidebar nav a span { font-size: 18px; }
+    .logout-btn {
+      position: absolute;
+      bottom: 24px;
+      left: 0; right: 0;
+      padding: 0 24px;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    .page-header {
+      margin-bottom: 28px;
+    }
+    .page-header h2 { font-size: 22px; font-weight: 700; }
+    .page-header p { color: #888; font-size: 13px; margin-top: 4px; }
+
+    /* Cards / Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #1a2a3a;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-card .icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .stat-card .info h3 { font-size: 24px; font-weight: 700; }
+    .stat-card .info p { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* Table */
+    .table-container {
+      background: #1a2a3a;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #243447;
+    }
+    .table-header h3 { font-size: 16px; font-weight: 600; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      background: #0d1b2a;
+      padding: 12px 24px;
+      text-align: left;
+      font-size: 12px;
+      color: #888;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tbody td {
+      padding: 14px 24px;
+      border-bottom: 1px solid #243447;
+      font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+    /* Form */
+    .form-section {
+      background: #1a2a3a;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    .form-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; }
+    .form-group input, .form-group textarea, .form-group select {
+      background: #0d1b2a;
+      border: 1px solid #243447;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: #3b82f6;
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+
+    /* Buttons */
+    .btn {
+      padding: 11px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: rgba(220,38,38,0.15); color: #f87171; border: 1px solid rgba(220,38,38,0.3); }
+    .btn-danger:hover { background: rgba(220,38,38,0.25); }
+    .btn-outline { background: transparent; color: #60a5fa; border: 1px solid #3b82f6; }
+    .btn-outline:hover { background: rgba(59,130,246,0.1); }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+    /* Alerts / Toast */
+    #toast {
+      position: fixed;
+      top: 20px; right: 20px;
+      background: #22c55e;
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #toast.error { background: #ef4444; }
+
+    /* Badge */
+    .badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
+    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+    .hidden { display: none !important; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .input-field { /* reuse form-group input */ }
+    .text-muted { color: #888; }
+    .price-text { color: #60a5fa; font-weight: 700; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: #1a2a3a;
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h3 { font-size: 18px; font-weight: 700; }
+    .close-btn {
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: #aaa;
+      font-size: 20px;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal" class="modal-overlay" onclick="closeEditModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Edit Produk</h3>
+      <button class="close-btn" onclick="closeEditModal()">✕</button>
+    </div>
+    <form id="edit-product-form" onsubmit="updateProduct(event)">
+      <input type="hidden" id="edit-id" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Produk *</label>
+          <input type="text" id="edit-name" required />
+        </div>
+        <div class="form-group">
+          <label>Harga (Rp) *</label>
+          <input type="number" id="edit-price" required min="1" />
+        </div>
+        <div class="form-group">
+          <label>Kategori *</label>
+          <select id="edit-category" required style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid #243447; color: white; border-radius: 8px; font-size: 14px;">
+            <option value="Processor">Processor</option>
+            <option value="Motherboard">Motherboard</option>
+            <option value="VGA Card">VGA Card</option>
+            <option value="Storage">Storage</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Stok *</label>
+          <input type="number" id="edit-stock" required min="0" />
+        </div>
+        <div class="form-group">
+          <label>Ganti Gambar (Opsional)</label>
+          <div id="edit-upload-area" onclick="document.getElementById('edit-image-file').click()"
+            style="border:2px dashed #243447; border-radius:10px; padding:16px; text-align:center;
+                   cursor:pointer; background:#0d1b2a; transition:border-color 0.2s">
+            <img id="edit-img-preview" src="" alt="Preview Gambar Saat Ini"
+              style="max-width:100%; max-height:120px; border-radius:8px; object-fit:contain" />
+            <div id="edit-upload-hint" style="color:#555; font-size:12px; margin-top:8px">
+              Klik untuk ganti gambar
+            </div>
+          </div>
+          <input type="file" id="edit-image-file" accept="image/*"
+            style="display:none" onchange="previewEditImage(event)" />
+          <div id="edit-upload-status" style="font-size:12px; color:#60a5fa; margin-top:6px"></div>
+        </div>
+        <div class="form-group full">
+          <label>Deskripsi</label>
+          <textarea id="edit-desc"></textarea>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end">
+        <button type="button" class="btn btn-outline" onclick="closeEditModal()">Batal</button>
+        <button type="submit" id="edit-submit-btn" class="btn btn-primary">💾 Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- =============================== -->
+<!-- LOGIN PAGE -->
+<!-- =============================== -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="logo"><span>🖥️</span></div>
+    <h2>Hardware Store Admin</h2>
+    <p>Masuk dengan akun administrator</p>
+
+    <form id="login-form" onsubmit="adminLogin(event)">
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="admin@email.com" required />
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
+        Masuk ke Admin Panel
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- =============================== -->
+<!-- MAIN APP -->
+<!-- =============================== -->
+<div id="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand">
+      <h1>🖥️ Hardware Store</h1>
+      <p>Admin Panel</p>
+    </div>
+    <nav>
+      <a href="#" class="active" onclick="showSection('dashboard', this)">
+        <span>📊</span> Dashboard
+      </a>
+      <a href="#" onclick="showSection('products', this)">
+        <span>📦</span> Kelola Produk
+      </a>
+      <a href="#" onclick="showSection('orders', this)">
+        <span>🧾</span> Pesanan Masuk
+      </a>
+      <a href="#" onclick="showSection('settings', this)">
+        <span>⚙️</span> Pengaturan Akun
+      </a>
+    </nav>
+    <div class="logout-btn">
+      <button class="btn btn-danger" style="width:100%; justify-content:center" onclick="logout()">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Ringkasan data toko hardware Anda</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="icon" style="background:rgba(59,130,246,0.15)">📦</div>
+          <div class="info">
+            <h3 id="stat-products">-</h3>
+            <p>Total Produk</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background:rgba(34,197,94,0.15)">🧾</div>
+          <div class="info">
+            <h3 id="stat-orders">-</h3>
+            <p>Total Pesanan</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background:rgba(245,158,11,0.15)">💰</div>
+          <div class="info">
+            <h3 id="stat-revenue">-</h3>
+            <p>Total Pendapatan</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Pesanan Terbaru</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Produk</th>
+              <th>Pembeli</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Tanggal</th>
+            </tr>
+          </thead>
+          <tbody id="recent-orders-body">
+            <tr><td colspan="6" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="section-products" class="section">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start">
+        <div>
+          <h2>Kelola Produk</h2>
+          <p>Tambah dan lihat daftar produk hardware</p>
+        </div>
+      </div>
+
+      <!-- Form Tambah Produk -->
+      <div class="form-section">
+        <h3>➕ Tambah Produk Baru</h3>
+        <form id="add-product-form" onsubmit="addProduct(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nama Produk *</label>
+              <input type="text" id="p-name" placeholder="Contoh: Processor Intel i9" required />
+            </div>
+            <div class="form-group">
+              <label>Harga (Rp) *</label>
+              <input type="number" id="p-price" placeholder="5000000" required min="1" />
+            </div>
+            <div class="form-group">
+              <label>Kategori *</label>
+              <select id="p-category" required style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid #243447; color: white; border-radius: 8px; font-size: 14px;">
+                <option value="Processor">Processor</option>
+                <option value="Motherboard">Motherboard</option>
+                <option value="VGA Card">VGA Card</option>
+                <option value="Storage">Storage</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Stok *</label>
+              <input type="number" id="p-stock" placeholder="10" required min="0" />
+            </div>
+            <div class="form-group">
+              <label>Gambar Produk</label>
+              <div id="upload-area" onclick="document.getElementById('p-image-file').click()"
+                style="border:2px dashed #243447; border-radius:10px; padding:20px; text-align:center;
+                       cursor:pointer; transition:border-color 0.2s; background:#0d1b2a">
+                <div id="upload-placeholder">
+                  <div style="font-size:32px; margin-bottom:6px">📁</div>
+                  <div style="color:#888; font-size:13px">Klik untuk pilih gambar</div>
+                  <div style="color:#555; font-size:11px; margin-top:4px">JPG, PNG, WEBP (maks. 5MB)</div>
+                </div>
+                <img id="img-preview" src="" alt="Preview"
+                  style="display:none; max-width:100%; max-height:160px;
+                         border-radius:8px; object-fit:contain" />
+              </div>
+              <input type="file" id="p-image-file" accept="image/*"
+                style="display:none" onchange="previewImage(event)" />
+              <div id="upload-status" style="font-size:12px; color:#60a5fa; margin-top:6px"></div>
+            </div>
+            <div class="form-group full">
+              <label>Deskripsi</label>
+              <textarea id="p-desc" placeholder="Deskripsi detail produk hardware..."></textarea>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <button type="submit" class="btn btn-primary">💾 Simpan Produk</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabel Produk -->
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Daftar Produk</h3>
+          <button class="btn btn-outline btn-sm" onclick="loadProducts()">🔄 Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama Produk</th>
+              <th>Harga</th>
+              <th>Stok</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="products-body">
+            <tr><td colspan="5" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="section-orders" class="section">
+      <div class="page-header">
+        <h2>Pesanan Masuk</h2>
+        <p>Semua pesanan dari pelanggan</p>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Semua Pesanan</h3>
+          <button class="btn btn-outline btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Produk</th>
+              <th>Pembeli</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Lokasi GPS</th>
+              <th>Tanggal</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body">
+            <tr><td colspan="7" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS (Pengaturan Akun) -->
+    <div id="section-settings" class="section">
+      <div class="page-header">
+        <h2>Pengaturan Akun</h2>
+        <p>Ubah email dan password administrator Anda</p>
+      </div>
+      
+      <div class="table-container" style="max-width: 600px; padding: 24px;">
+        <form id="settings-form" onsubmit="updateAdminProfile(event)">
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label>Email Admin Baru</label>
+            <input type="email" id="settings-email" required />
+            <small style="color: #888; font-size: 12px; margin-top: 4px; display: block;">Masukkan email baru atau biarkan email saat ini jika tidak ingin diubah.</small>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label>Password Baru (Opsional)</label>
+            <input type="password" id="settings-password" placeholder="Biarkan kosong jika tidak ingin ganti" />
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            💾 Simpan Perubahan
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  let token = localStorage.getItem('admin_token');
+  let allOrders = [];
+
+  // =============================
+  // AUTH
+  // =============================
+  async function adminLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.token) {
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_name', data.user.name);
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+        token = data.token;
+        showApp();
+      } else {
+        showToast(data.error || 'Login gagal', true);
+      }
+    } catch (err) {
+      showToast('Tidak dapat terhubung ke server!', true);
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_name');
+    token = null;
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+
+  function showApp() {
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadDashboard();
+    loadProducts();
+    loadOrders();
+  }
+
+  // =============================
+  // NAVIGATION
+  // =============================
+  function showSection(name, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    
+    if (name === 'settings') loadSettings();
+  }
+
+  function loadSettings() {
+    const user = JSON.parse(localStorage.getItem('admin_user'));
+    if (user && user.email) {
+      document.getElementById('settings-email').value = user.email;
+      document.getElementById('settings-password').value = '';
+    }
+  }
+
+  async function updateAdminProfile(e) {
+    e.preventDefault();
+    const newEmail = document.getElementById('settings-email').value;
+    const newPassword = document.getElementById('settings-password').value;
+    
+    try {
+      const res = await fetch(`${API}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: newEmail, newPassword: newPassword })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        showToast(data.message);
+        let user = JSON.parse(localStorage.getItem('admin_user'));
+        if (user) {
+          user.email = newEmail;
+          localStorage.setItem('admin_user', JSON.stringify(user));
+        }
+        document.getElementById('settings-password').value = '';
+      } else {
+        showToast(data.error || 'Gagal menyimpan', true);
+      }
+    } catch (err) {
+      showToast('Terjadi kesalahan jaringan', true);
+    }
+  }
+
+  // =============================
+  // DASHBOARD
+  // =============================
+  async function loadDashboard() {
+    try {
+      const [products, orders] = await Promise.all([
+        fetch(`${API}/products`).then(r => r.json()),
+        fetch(`${API}/orders`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json())
+      ]);
+
+      document.getElementById('stat-products').textContent = products.length;
+      document.getElementById('stat-orders').textContent = orders.length;
+
+      const revenue = orders.reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
+      document.getElementById('stat-revenue').textContent = formatPrice(revenue);
+
+      // Recent orders (last 5)
+      const recent = [...orders].slice(0, 5);
+      const tbody = document.getElementById('recent-orders-body');
+      tbody.innerHTML = recent.length === 0
+        ? '<tr><td colspan="6" style="text-align:center; color:#888; padding:30px">Belum ada pesanan</td></tr>'
+        : recent.map(o => `
+          <tr>
+            <td><span class="badge badge-blue">#${o.id}</span></td>
+            <td>${o.product_name}</td>
+            <td>${o.user_name}</td>
+            <td>${o.quantity} pcs</td>
+            <td class="price-text">${formatPrice(o.total_price)}</td>
+            <td class="text-muted">${formatDate(o.order_date)}</td>
+          </tr>`).join('');
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // =============================
+  // PRODUCTS
+  // =============================
+  async function loadProducts() {
+    try {
+      const res = await fetch(`${API}/products`);
+      const products = await res.json();
+      const tbody = document.getElementById('products-body');
+      tbody.innerHTML = products.length === 0
+        ? '<tr><td colspan="5" style="text-align:center; color:#888; padding:30px">Belum ada produk</td></tr>'
+        : products.map(p => `
+          <tr>
+            <td class="text-muted">#${p.id}</td>
+            <td>
+              ${p.image_url ? `<img src="${p.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px" onerror="this.style.display='none'">` : ''}
+              <span style="font-weight:600">${p.name}</span>
+              <div style="font-size:12px; color:#888">${(p.description || '').substring(0, 50)}${p.description && p.description.length > 50 ? '...' : ''}</div>
+            </td>
+            <td class="price-text">${formatPrice(p.price)}</td>
+            <td>
+              <span class="badge ${p.stock > 0 ? 'badge-green' : 'badge-red'}">${p.stock} pcs</span>
+            </td>
+            <td style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Hapus</button>
+            </td>
+          </tr>`).join('');
+    } catch (err) {
+      showToast('Gagal memuat produk', true);
+    }
+  }
+
+  async function addProduct(e) {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type=submit]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Menyimpan...';
+
+    try {
+      // Step 1: Upload gambar jika ada file yang dipilih
+      let imageUrl = '';
+      const fileInput = document.getElementById('p-image-file');
+      if (fileInput.files.length > 0) {
+        document.getElementById('upload-status').textContent = '⏳ Mengupload gambar...';
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        const uploadRes = await fetch(`${API}/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        const uploadResult = await uploadRes.json();
+        if (uploadResult.imageUrl) {
+          imageUrl = uploadResult.imageUrl;
+          document.getElementById('upload-status').textContent = '✅ Gambar berhasil diupload!';
+        } else {
+          showToast(uploadResult.error || 'Gagal upload gambar', true);
+          submitBtn.disabled = false;
+          submitBtn.textContent = '💾 Simpan Produk';
+          return;
+        }
+      }
+
+      // Step 2: Simpan data produk
+      const data = {
+        name: document.getElementById('p-name').value,
+        description: document.getElementById('p-desc').value,
+        price: parseFloat(document.getElementById('p-price').value),
+        stock: parseInt(document.getElementById('p-stock').value),
+        category: document.getElementById('p-category').value,
+        image_url: imageUrl,
+      };
+
+      const res = await fetch(`${API}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.productId) {
+        showToast('✅ Produk berhasil ditambahkan!');
+        document.getElementById('add-product-form').reset();
+        // Reset preview gambar
+        document.getElementById('img-preview').style.display = 'none';
+        document.getElementById('upload-placeholder').style.display = 'block';
+        document.getElementById('upload-status').textContent = '';
+        loadProducts();
+        loadDashboard();
+      } else {
+        showToast(result.error || 'Gagal menambahkan produk', true);
+      }
+    } catch (err) {
+      showToast('Tidak dapat terhubung ke server!', true);
+    }
+  }
+
+  // Preview gambar sebelum upload (form tambah)
+  function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.getElementById('img-preview');
+      const placeholder = document.getElementById('upload-placeholder');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // =============================
+  // EDIT PRODUK (MODAL)
+  // =============================
+  function openEditModal(product) {
+    document.getElementById('edit-id').value = product.id;
+    document.getElementById('edit-name').value = product.name;
+    document.getElementById('edit-price').value = product.price;
+    document.getElementById('edit-stock').value = product.stock;
+    document.getElementById('edit-category').value = product.category || 'Lainnya';
+    document.getElementById('edit-desc').value = product.description || '';
+    document.getElementById('edit-upload-status').textContent = '';
+
+    // Tampilkan gambar yang sudah ada (jika ada)
+    const preview = document.getElementById('edit-img-preview');
+    if (product.image_url) {
+      preview.src = product.image_url;
+      preview.style.display = 'block';
+    } else {
+      preview.src = '';
+      preview.style.display = 'none';
+    }
+
+    // Simpan image_url lama di dataset untuk digunakan jika tidak ganti gambar
+    document.getElementById('edit-product-form').dataset.currentImageUrl = product.image_url || '';
+
+    // Reset file input
+    document.getElementById('edit-image-file').value = '';
+
+    document.getElementById('edit-modal').classList.add('open');
+  }
+
+  function closeEditModal(event) {
+    // Jika klik di luar modal, tutup
+    if (event && event.target !== document.getElementById('edit-modal')) return;
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+
+  function previewEditImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.getElementById('edit-img-preview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function updateProduct(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const submitBtn = document.getElementById('edit-submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Menyimpan...';
+
+    try {
+      // Upload gambar baru jika ada file yang dipilih
+      let imageUrl = document.getElementById('edit-product-form').dataset.currentImageUrl;
+      const fileInput = document.getElementById('edit-image-file');
+      if (fileInput.files.length > 0) {
+        document.getElementById('edit-upload-status').textContent = '⏳ Mengupload gambar baru...';
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        const uploadRes = await fetch(`${API}/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        const uploadResult = await uploadRes.json();
+        if (uploadResult.imageUrl) {
+          imageUrl = uploadResult.imageUrl;
+          document.getElementById('edit-upload-status').textContent = '✅ Gambar berhasil diupdate!';
+        } else {
+          showToast(uploadResult.error || 'Gagal upload gambar', true);
+          submitBtn.disabled = false;
+          submitBtn.textContent = '💾 Simpan Perubahan';
+          return;
+        }
+      }
+
+      // Update data produk
+      const data = {
+        name: document.getElementById('edit-name').value,
+        description: document.getElementById('edit-desc').value,
+        price: parseFloat(document.getElementById('edit-price').value),
+        stock: parseInt(document.getElementById('edit-stock').value),
+        category: document.getElementById('edit-category').value,
+        image_url: imageUrl,
+      };
+
+      const res = await fetch(`${API}/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+
+      if (result.message) {
+        showToast('✅ Produk berhasil diupdate!');
+        document.getElementById('edit-modal').classList.remove('open');
+        loadProducts();
+        loadDashboard();
+      } else {
+        showToast(result.error || 'Gagal mengupdate produk', true);
+      }
+    } catch (err) {
+      showToast('Tidak dapat terhubung ke server!', true);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💾 Simpan Perubahan';
+    }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('Yakin ingin menghapus produk ini?')) return;
+    try {
+      const res = await fetch(`${API}/products/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const result = await res.json();
+      if (result.message) {
+        showToast('🗑️ Produk dihapus');
+        loadProducts();
+        loadDashboard();
+      } else {
+        showToast(result.error || 'Gagal menghapus', true);
+      }
+    } catch (err) {
+      showToast('Tidak dapat terhubung ke server!', true);
+    }
+  }
+
+  // =============================
+  // ORDERS
+  // =============================
+  async function loadOrders() {
+    try {
+      const res = await fetch(`${API}/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const orders = await res.json();
+      allOrders = orders;
+      const tbody = document.getElementById('orders-body');
+      tbody.innerHTML = orders.length === 0
+        ? '<tr><td colspan="7" style="text-align:center; color:#888; padding:30px">Belum ada pesanan</td></tr>'
+        : orders.map(o => `
+          <tr>
+            <td><span class="badge badge-blue">#${o.id}</span></td>
+            <td>${o.product_name}</td>
+            <td>${o.user_name}</td>
+            <td>${o.quantity} pcs</td>
+            <td class="price-text">${formatPrice(o.total_price)}</td>
+            <td style="font-size:11px; color:#888">
+              ${o.latitude ? `${parseFloat(o.latitude).toFixed(5)}, ${parseFloat(o.longitude).toFixed(5)}` : '-'}
+            </td>
+            <td class="text-muted">${formatDate(o.order_date)}</td>
+          </tr>`).join('');
+    } catch (err) {
+      showToast('Gagal memuat pesanan', true);
+    }
+  }
+
+  // =============================
+  // UTILS
+  // =============================
+  function formatPrice(price) {
+    const num = parseFloat(price) || 0;
+    return 'Rp ' + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show' + (isError ? ' error' : '');
+    setTimeout(() => t.className = '', 3000);
+  }
+
+  // =============================
+  // INIT
+  // =============================
+  window.onload = () => {
+    if (token) {
+      showApp();
+    }
+  };
+</script>
+</body>
+</html>
