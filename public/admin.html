@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel - Hardware Store</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel='stylesheet' href='style.css' />
 </head>
 <body>
 
@@ -15,8 +15,8 @@
 <div id="edit-modal" class="modal-overlay" onclick="closeEditModal(event)">
   <div class="modal">
     <div class="modal-header">
-      <h3>âœï¸ Edit Produk</h3>
-      <button class="close-btn" onclick="closeEditModal()">âœ•</button>
+      <h3>✏️ Edit Produk</h3>
+      <button class="close-btn" onclick="closeEditModal()">✕</button>
     </div>
     <form id="edit-product-form" onsubmit="updateProduct(event)">
       <input type="hidden" id="edit-id" />
@@ -65,7 +65,7 @@
       </div>
       <div style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end">
         <button type="button" class="btn btn-outline" onclick="closeEditModal()">Batal</button>
-        <button type="submit" id="edit-submit-btn" class="btn btn-primary">ðŸ’¾ Simpan Perubahan</button>
+        <button type="submit" id="edit-submit-btn" class="btn btn-primary">💾 Simpan Perubahan</button>
       </div>
     </form>
   </div>
@@ -76,7 +76,7 @@
 <!-- =============================== -->
 <div id="login-page">
   <div class="login-card">
-    <div class="logo"><span>ðŸ–¥ï¸</span></div>
+    <div class="logo"><span>🖥️</span></div>
     <h2>Hardware Store Admin</h2>
     <p>Masuk dengan akun administrator</p>
 
@@ -87,7 +87,7 @@
       </div>
       <div class="form-group" style="margin-bottom:20px">
         <label>Password</label>
-        <input type="password" id="login-password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required />
+        <input type="password" id="login-password" placeholder="••••••••" required />
       </div>
       <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
         Masuk ke Admin Panel
@@ -103,26 +103,26 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="brand">
-      <h1>ðŸ–¥ï¸ Hardware Store</h1>
+      <h1>🖥️ Hardware Store</h1>
       <p>Admin Panel</p>
     </div>
     <nav>
       <a href="#" class="active" onclick="showSection('dashboard', this)">
-        <span>ðŸ“Š</span> Dashboard
+        <span>📊</span> Dashboard
       </a>
       <a href="#" onclick="showSection('products', this)">
-        <span>ðŸ“¦</span> Kelola Produk
+        <span>📦</span> Kelola Produk
       </a>
       <a href="#" onclick="showSection('orders', this)">
-        <span>ðŸ§¾</span> Pesanan Masuk
+        <span>🧾</span> Pesanan Masuk
       </a>
       <a href="#" onclick="showSection('settings', this)">
-        <span>âš™ï¸</span> Pengaturan Akun
+        <span>⚙️</span> Pengaturan Akun
       </a>
     </nav>
     <div class="logout-btn">
       <button class="btn btn-danger" style="width:100%; justify-content:center" onclick="logout()">
-        ðŸšª Logout
+        🚪 Logout
       </button>
     </div>
   </div>
@@ -138,21 +138,21 @@
       </div>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="icon" style="background:rgba(59,130,246,0.15)">ðŸ“¦</div>
+          <div class="icon" style="background:rgba(59,130,246,0.15)">📦</div>
           <div class="info">
             <h3 id="stat-products">-</h3>
             <p>Total Produk</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="icon" style="background:rgba(34,197,94,0.15)">ðŸ§¾</div>
+          <div class="icon" style="background:rgba(34,197,94,0.15)">🧾</div>
           <div class="info">
             <h3 id="stat-orders">-</h3>
             <p>Total Pesanan</p>
           </div>
         </div>
         <div class="stat-card">
-          <div class="icon" style="background:rgba(245,158,11,0.15)">ðŸ’°</div>
+          <div class="icon" style="background:rgba(245,158,11,0.15)">💰</div>
           <div class="info">
             <h3 id="stat-revenue">-</h3>
             <p>Total Pendapatan</p>
@@ -193,7 +193,7 @@
 
       <!-- Form Tambah Produk -->
       <div class="form-section">
-        <h3>âž• Tambah Produk Baru</h3>
+        <h3>➕ Tambah Produk Baru</h3>
         <form id="add-product-form" onsubmit="addProduct(event)">
           <div class="form-grid">
             <div class="form-group">
@@ -224,7 +224,7 @@
                 style="border:2px dashed #243447; border-radius:10px; padding:20px; text-align:center;
                        cursor:pointer; transition:border-color 0.2s; background:#0d1b2a">
                 <div id="upload-placeholder">
-                  <div style="font-size:32px; margin-bottom:6px">ðŸ“</div>
+                  <div style="font-size:32px; margin-bottom:6px">📁</div>
                   <div style="color:#888; font-size:13px">Klik untuk pilih gambar</div>
                   <div style="color:#555; font-size:11px; margin-top:4px">JPG, PNG, WEBP (maks. 5MB)</div>
                 </div>
@@ -242,7 +242,7 @@
             </div>
           </div>
           <div style="margin-top:16px">
-            <button type="submit" class="btn btn-primary">ðŸ’¾ Simpan Produk</button>
+            <button type="submit" class="btn btn-primary">💾 Simpan Produk</button>
           </div>
         </form>
       </div>
@@ -251,7 +251,7 @@
       <div class="table-container">
         <div class="table-header">
           <h3>Daftar Produk</h3>
-          <button class="btn btn-outline btn-sm" onclick="loadProducts()">ðŸ”„ Refresh</button>
+          <button class="btn btn-outline btn-sm" onclick="loadProducts()">🔄 Refresh</button>
         </div>
         <table>
           <thead>
@@ -280,7 +280,7 @@
       <div class="table-container">
         <div class="table-header">
           <h3>Semua Pesanan</h3>
-          <button class="btn btn-outline btn-sm" onclick="loadOrders()">ðŸ”„ Refresh</button>
+          <button class="btn btn-outline btn-sm" onclick="loadOrders()">🔄 Refresh</button>
         </div>
         <table>
           <thead>
@@ -322,7 +322,7 @@
           </div>
           
           <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-            ðŸ’¾ Simpan Perubahan
+            💾 Simpan Perubahan
           </button>
         </form>
       </div>
@@ -494,8 +494,8 @@
               <span class="badge ${p.stock > 0 ? 'badge-green' : 'badge-red'}">${p.stock} pcs</span>
             </td>
             <td style="display:flex;gap:6px">
-              <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>âœï¸ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">ðŸ—‘ï¸ Hapus</button>
+              <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️ Hapus</button>
             </td>
           </tr>`).join('');
     } catch (err) {
@@ -507,14 +507,14 @@
     e.preventDefault();
     const submitBtn = e.target.querySelector('button[type=submit]');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'â³ Menyimpan...';
+    submitBtn.textContent = '⏳ Menyimpan...';
 
     try {
       // Step 1: Upload gambar jika ada file yang dipilih
       let imageUrl = '';
       const fileInput = document.getElementById('p-image-file');
       if (fileInput.files.length > 0) {
-        document.getElementById('upload-status').textContent = 'â³ Mengupload gambar...';
+        document.getElementById('upload-status').textContent = '⏳ Mengupload gambar...';
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         const uploadRes = await fetch(`${API}/upload`, {
@@ -525,11 +525,11 @@
         const uploadResult = await uploadRes.json();
         if (uploadResult.imageUrl) {
           imageUrl = uploadResult.imageUrl;
-          document.getElementById('upload-status').textContent = 'âœ… Gambar berhasil diupload!';
+          document.getElementById('upload-status').textContent = '✅ Gambar berhasil diupload!';
         } else {
           showToast(uploadResult.error || 'Gagal upload gambar', true);
           submitBtn.disabled = false;
-          submitBtn.textContent = 'ðŸ’¾ Simpan Produk';
+          submitBtn.textContent = '💾 Simpan Produk';
           return;
         }
       }
@@ -551,7 +551,7 @@
       });
       const result = await res.json();
       if (result.productId) {
-        showToast('âœ… Produk berhasil ditambahkan!');
+        showToast('✅ Produk berhasil ditambahkan!');
         document.getElementById('add-product-form').reset();
         // Reset preview gambar
         document.getElementById('img-preview').style.display = 'none';
@@ -636,14 +636,14 @@
     const id = document.getElementById('edit-id').value;
     const submitBtn = document.getElementById('edit-submit-btn');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'â³ Menyimpan...';
+    submitBtn.textContent = '⏳ Menyimpan...';
 
     try {
       // Upload gambar baru jika ada file yang dipilih
       let imageUrl = document.getElementById('edit-product-form').dataset.currentImageUrl;
       const fileInput = document.getElementById('edit-image-file');
       if (fileInput.files.length > 0) {
-        document.getElementById('edit-upload-status').textContent = 'â³ Mengupload gambar baru...';
+        document.getElementById('edit-upload-status').textContent = '⏳ Mengupload gambar baru...';
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
         const uploadRes = await fetch(`${API}/upload`, {
@@ -654,11 +654,11 @@
         const uploadResult = await uploadRes.json();
         if (uploadResult.imageUrl) {
           imageUrl = uploadResult.imageUrl;
-          document.getElementById('edit-upload-status').textContent = 'âœ… Gambar berhasil diupdate!';
+          document.getElementById('edit-upload-status').textContent = '✅ Gambar berhasil diupdate!';
         } else {
           showToast(uploadResult.error || 'Gagal upload gambar', true);
           submitBtn.disabled = false;
-          submitBtn.textContent = 'ðŸ’¾ Simpan Perubahan';
+          submitBtn.textContent = '💾 Simpan Perubahan';
           return;
         }
       }
@@ -681,7 +681,7 @@
       const result = await res.json();
 
       if (result.message) {
-        showToast('âœ… Produk berhasil diupdate!');
+        showToast('✅ Produk berhasil diupdate!');
         document.getElementById('edit-modal').classList.remove('open');
         loadProducts();
         loadDashboard();
@@ -692,7 +692,7 @@
       showToast('Tidak dapat terhubung ke server!', true);
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'ðŸ’¾ Simpan Perubahan';
+      submitBtn.textContent = '💾 Simpan Perubahan';
     }
   }
 
@@ -705,7 +705,7 @@
       });
       const result = await res.json();
       if (result.message) {
-        showToast('ðŸ—‘ï¸ Produk dihapus');
+        showToast('🗑️ Produk dihapus');
         loadProducts();
         loadDashboard();
       } else {
@@ -778,4 +778,3 @@
 </script>
 </body>
 </html>
-

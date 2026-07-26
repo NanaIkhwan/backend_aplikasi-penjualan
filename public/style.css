@@ -1,4 +1,4 @@
-﻿* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -244,6 +244,7 @@
     .section { display: none; }
     .section.active { display: block; }
 
+    .input-field { /* reuse form-group input */ }
     .text-muted { color: #888; }
     .price-text { color: #60a5fa; font-weight: 700; }
 
