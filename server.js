@@ -396,6 +396,18 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
+// Get semua user (Hanya Admin)
+app.get('/api/users', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Akses ditolak, hanya admin' });
+  try {
+    const [users] = await db.query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+});
+
 // ==========================================
 // START SERVER
 // ==========================================

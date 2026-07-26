@@ -116,6 +116,9 @@
       <a href="#" onclick="showSection('orders', this)">
         <span>🧾</span> Pesanan Masuk
       </a>
+      <a href="#" onclick="showSection('users', this)">
+        <span>👥</span> Data Pelanggan
+      </a>
       <a href="#" onclick="showSection('settings', this)">
         <span>⚙️</span> Pengaturan Akun
       </a>
@@ -156,6 +159,13 @@
           <div class="info">
             <h3 id="stat-revenue">-</h3>
             <p>Total Pendapatan</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background:rgba(168,85,247,0.15)">👥</div>
+          <div class="info">
+            <h3 id="stat-users">-</h3>
+            <p>Total Pengguna</p>
           </div>
         </div>
       </div>
@@ -301,6 +311,35 @@
       </div>
     </div>
 
+    <!-- USERS -->
+    <div id="section-users" class="section">
+      <div class="page-header">
+        <h2>Data Pelanggan</h2>
+        <p>Daftar semua pengguna terdaftar</p>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <h3>Semua Pengguna</h3>
+          <button class="btn btn-outline btn-sm" onclick="loadUsers()">🔄 Refresh</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Nama Lengkap</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Tanggal Daftar</th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr><td colspan="5" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- SETTINGS (Pengaturan Akun) -->
     <div id="section-settings" class="section">
       <div class="page-header">
@@ -382,6 +421,7 @@
     loadDashboard();
     loadProducts();
     loadOrders();
+    loadUsers();
 
     // Restore tab yang aktif sebelumnya
     const savedSection = localStorage.getItem('activeAdminSection') || 'dashboard';
@@ -749,6 +789,41 @@
           </tr>`).join('');
     } catch (err) {
       showToast('Gagal memuat pesanan', true);
+    }
+  }
+
+  // =============================
+  // USERS
+  // =============================
+  async function loadUsers() {
+    try {
+      const res = await fetch(`${API}/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const users = await res.json();
+      
+      const tbody = document.getElementById('users-body');
+      
+      if (res.ok) {
+        document.getElementById('stat-users').textContent = users.length;
+        tbody.innerHTML = users.length === 0
+          ? '<tr><td colspan="5" style="text-align:center; color:#888; padding:30px">Belum ada pengguna terdaftar</td></tr>'
+          : users.map(u => `
+            <tr>
+              <td><span class="badge badge-blue">#${u.id}</span></td>
+              <td><strong>${u.name}</strong></td>
+              <td>${u.email}</td>
+              <td>
+                <span style="padding:4px 8px; border-radius:12px; font-size:11px; font-weight:bold; 
+                  background:${u.role==='admin'?'#ef4444':'#10b981'}; color:white">
+                  ${u.role.toUpperCase()}
+                </span>
+              </td>
+              <td class="text-muted">${formatDate(u.created_at)}</td>
+            </tr>`).join('');
+      }
+    } catch (err) {
+      showToast('Gagal memuat pengguna', true);
     }
   }
 
