@@ -69,7 +69,7 @@ app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) =>
   if (!req.file) return res.status(400).json({ error: 'Tidak ada file yang diupload' });
   // Buat URL yang bisa diakses dari luar
   const host = req.get('host'); // misal: 192.168.1.8:3000
-  const protocol = req.protocol; // http
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol; // Dukung reverse proxy Railway (HTTPS)
   const imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
   res.json({ message: 'Upload berhasil', imageUrl, filename: req.file.filename });
 });
@@ -163,7 +163,14 @@ app.put('/api/auth/profile', authenticateToken, async (req, res) => {
 app.get('/api/products', async (req, res) => {
   try {
     const [products] = await db.query('SELECT * FROM products ORDER BY created_at DESC');
-    res.json(products);
+    // Pastikan protocol selalu HTTPS saat production untuk menghindari Cleartext Traffic Error di Flutter
+    const formattedProducts = products.map(p => ({
+      ...p,
+      image_url: (p.image_url && p.image_url.startsWith('http://') && req.get('host').includes('railway.app')) 
+        ? p.image_url.replace('http://', 'https://') 
+        : p.image_url
+    }));
+    res.json(formattedProducts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });
@@ -175,7 +182,11 @@ app.get('/api/products/:id', async (req, res) => {
   try {
     const [products] = await db.query('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (products.length === 0) return res.status(404).json({ error: 'Produk tidak ditemukan' });
-    res.json(products[0]);
+    let product = products[0];
+    if (product.image_url && product.image_url.startsWith('http://') && req.get('host').includes('railway.app')) {
+      product.image_url = product.image_url.replace('http://', 'https://');
+    }
+    res.json(product);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });
@@ -212,17 +223,20 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
 
 // Edit produk (butuh login)
 app.put('/api/products/:id', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Hanya admin yang bisa mengubah produk' });
   try {
+    const { id } = req.params;
     const { name, description, price, stock, image_url, category } = req.body;
-    if (!name || !price) {
-      return res.status(400).json({ error: 'Nama produk dan harga wajib diisi' });
+    
+    // Pastikan HTTPS
+    let finalImageUrl = image_url;
+    if (finalImageUrl && finalImageUrl.startsWith('http://') && req.get('host').includes('railway.app')) {
+      finalImageUrl = finalImageUrl.replace('http://', 'https://');
     }
-    const [existing] = await db.query('SELECT id FROM products WHERE id = ?', [req.params.id]);
-    if (existing.length === 0) return res.status(404).json({ error: 'Produk tidak ditemukan' });
 
-    await db.query(
+    const [result] = await db.query(
       'UPDATE products SET name = ?, description = ?, price = ?, stock = ?, image_url = ?, category = ? WHERE id = ?',
-      [name, description || '', price, stock || 0, image_url || '', category || '', req.params.id]
+      [name, description, price, stock, finalImageUrl, category, id]
     );
     res.json({ message: 'Produk berhasil diupdate' });
   } catch (error) {
@@ -246,8 +260,16 @@ app.get('/api/cart', authenticateToken, async (req, res) => {
       WHERE c.user_id = ?
       ORDER BY c.created_at DESC
     `;
-    const [carts] = await db.query(query, [userId]);
-    res.json(carts);
+    const [cart] = await db.query(query, [userId]);
+    
+    const formattedCart = cart.map(item => ({
+      ...item,
+      image_url: (item.image_url && item.image_url.startsWith('http://') && req.get('host').includes('railway.app')) 
+        ? item.image_url.replace('http://', 'https://') 
+        : item.image_url
+    }));
+    
+    res.json(formattedCart);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });
