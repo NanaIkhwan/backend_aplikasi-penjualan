@@ -429,7 +429,7 @@ app.get('/api/chats/users', authenticateToken, async (req, res) => {
       SELECT u.id, u.name, u.email, MAX(c.created_at) as last_chat
       FROM users u
       JOIN chats c ON u.id = c.user_id
-      GROUP BY u.id
+      GROUP BY u.id, u.name, u.email
       ORDER BY last_chat DESC
     `;
     const [users] = await db.query(query);
