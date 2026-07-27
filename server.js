@@ -7,8 +7,14 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const db = require('./database');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: '*' }
+});
 app.use(cors());
 app.use(express.json());
 // Redirect root ke halaman admin login
@@ -412,9 +418,86 @@ app.get('/api/users', authenticateToken, async (req, res) => {
 });
 
 // ==========================================
+// CHAT ROUTES & SOCKET.IO
+// ==========================================
+
+// Get daftar pengguna yang pernah chat (Untuk Admin)
+app.get('/api/chats/users', authenticateToken, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Akses ditolak' });
+  try {
+    const query = `
+      SELECT u.id, u.name, u.email, MAX(c.created_at) as last_chat
+      FROM users u
+      JOIN chats c ON u.id = c.user_id
+      GROUP BY u.id
+      ORDER BY last_chat DESC
+    `;
+    const [users] = await db.query(query);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+});
+
+// Get riwayat chat dengan user tertentu
+app.get('/api/chats/:userId', authenticateToken, async (req, res) => {
+  try {
+    const targetUserId = req.params.userId;
+    // User hanya bisa akses chatnya sendiri, Admin bisa akses semua
+    if (req.user.role !== 'admin' && req.user.userId != targetUserId) {
+      return res.status(403).json({ error: 'Akses ditolak' });
+    }
+    const [chats] = await db.query('SELECT * FROM chats WHERE user_id = ? ORDER BY created_at ASC', [targetUserId]);
+    res.json(chats);
+  } catch (error) {
+    res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+});
+
+// Socket.io Connection
+io.on('connection', (socket) => {
+  console.log('🔌 User connected to socket:', socket.id);
+
+  // Bergabung ke room spesifik (user_{userId})
+  socket.on('join_room', (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`User joined room: user_${userId}`);
+  });
+
+  socket.on('send_message', async (data) => {
+    try {
+      const { user_id, sender, message } = data;
+      // Simpan ke database
+      const [result] = await db.query(
+        'INSERT INTO chats (user_id, sender, message) VALUES (?, ?, ?)',
+        [user_id, sender, message]
+      );
+      
+      const newMessage = {
+        id: result.insertId,
+        user_id,
+        sender,
+        message,
+        created_at: new Date()
+      };
+
+      // Broadcast pesan ke user spesifik dan ke admin yang sedang memantau
+      io.to(`user_${user_id}`).emit('receive_message', newMessage);
+      io.emit('admin_receive_message', newMessage); // Broadcast global untuk notifikasi admin
+    } catch (err) {
+      console.error('Gagal menyimpan pesan:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('🔌 User disconnected:', socket.id);
+  });
+});
+
+// ==========================================
 // START SERVER
 // ==========================================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });

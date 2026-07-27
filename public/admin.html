@@ -119,6 +119,9 @@
       <a href="#" onclick="showSection('users', this)">
         <span>👥</span> Data Pelanggan
       </a>
+      <a href="#" onclick="showSection('chat', this)">
+        <span>💬</span> Pesan Pelanggan
+      </a>
       <a href="#" onclick="showSection('settings', this)">
         <span>⚙️</span> Pengaturan Akun
       </a>
@@ -340,6 +343,36 @@
       </div>
     </div>
 
+    <!-- CHAT (Pesan Pelanggan) -->
+    <div id="section-chat" class="section">
+      <div class="page-header">
+        <h2>Pesan Pelanggan</h2>
+        <p>Bantu pelanggan Anda dengan membalas pesan mereka</p>
+      </div>
+      <div class="chat-container">
+        <div class="chat-sidebar">
+          <div style="padding: 15px; border-bottom: 1px solid #243447;">
+            <h3 style="margin:0; font-size:16px;">Daftar Percakapan</h3>
+          </div>
+          <div id="chat-users-list" class="chat-users-list">
+            <div style="padding:20px; text-align:center; color:#888;">Memuat data...</div>
+          </div>
+        </div>
+        <div class="chat-main" id="chat-main-area" style="display:none;">
+          <div class="chat-header" id="chat-header-name">Nama Pelanggan</div>
+          <div class="chat-history" id="chat-history"></div>
+          <form class="chat-input-area" onsubmit="sendAdminMessage(event)">
+            <input type="text" id="chat-input" placeholder="Tulis pesan..." autocomplete="off" required />
+            <button type="submit" class="btn btn-primary">Kirim</button>
+          </form>
+        </div>
+        <div class="chat-placeholder" id="chat-placeholder">
+          <div style="font-size:40px; margin-bottom:10px;">💬</div>
+          <div>Pilih percakapan untuk mulai membalas</div>
+        </div>
+      </div>
+    </div>
+
     <!-- SETTINGS (Pengaturan Akun) -->
     <div id="section-settings" class="section">
       <div class="page-header">
@@ -370,12 +403,17 @@
   </div>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
   const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
     : `${window.location.origin}/api`;
   let token = localStorage.getItem('admin_token');
   let allOrders = [];
+  
+  // Chat globals
+  let socket = null;
+  let currentChatUserId = null;
 
   // =============================
   // AUTH
@@ -424,7 +462,8 @@
     loadProducts();
     loadOrders();
     loadUsers();
-
+    initSocket();
+    
     // Restore tab yang aktif sebelumnya
     const savedSection = localStorage.getItem('activeAdminSection') || 'dashboard';
     const navItem = document.querySelector(`.sidebar nav a[onclick*="${savedSection}"]`);
@@ -442,6 +481,7 @@
     if (el) el.classList.add('active');
     
     if (name === 'settings') loadSettings();
+    if (name === 'chat') loadChatUsers();
   }
 
   function loadSettings() {
@@ -830,6 +870,106 @@
     } catch (err) {
       showToast('Gagal memuat pengguna', true);
     }
+  }
+
+  // =============================
+  // CHAT SYSTEM
+  // =============================
+  function initSocket() {
+    if (!socket) {
+      socket = io();
+      socket.on('admin_receive_message', (msg) => {
+        // Jika sedang buka chat user ini, tambahkan ke layar
+        if (currentChatUserId == msg.user_id) {
+          appendMessage(msg);
+          scrollToBottom();
+        }
+        // Refresh daftar user agar yang terbaru naik
+        loadChatUsers();
+        showToast('Pesan baru dari pelanggan');
+      });
+    }
+  }
+
+  async function loadChatUsers() {
+    try {
+      const res = await fetch(`${API}/chats/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const users = await res.json();
+      const listDiv = document.getElementById('chat-users-list');
+      
+      listDiv.innerHTML = users.length === 0 
+        ? '<div style="padding:20px; text-align:center; color:#888;">Belum ada pesan</div>'
+        : users.map(u => `
+          <div class="chat-user-item ${currentChatUserId == u.id ? 'active' : ''}" onclick="openChat(${u.id}, '${u.name}')">
+            <div style="font-weight:bold; color:white;">${u.name}</div>
+            <div style="font-size:12px; color:#888;">${u.email}</div>
+          </div>
+        `).join('');
+    } catch (err) {
+      console.error('Gagal memuat pengguna chat', err);
+    }
+  }
+
+  async function openChat(userId, userName) {
+    currentChatUserId = userId;
+    document.getElementById('chat-placeholder').style.display = 'none';
+    document.getElementById('chat-main-area').style.display = 'flex';
+    document.getElementById('chat-header-name').textContent = userName;
+    
+    // Highlight di sidebar
+    document.querySelectorAll('.chat-user-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    try {
+      const res = await fetch(`${API}/chats/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const chats = await res.json();
+      const historyDiv = document.getElementById('chat-history');
+      historyDiv.innerHTML = '';
+      
+      chats.forEach(c => appendMessage(c));
+      scrollToBottom();
+    } catch (err) {
+      showToast('Gagal memuat riwayat pesan', true);
+    }
+  }
+
+  function appendMessage(msg) {
+    const historyDiv = document.getElementById('chat-history');
+    const div = document.createElement('div');
+    const isAdmin = msg.sender === 'admin';
+    div.className = `chat-bubble ${isAdmin ? 'admin' : 'user'}`;
+    div.textContent = msg.message;
+    historyDiv.appendChild(div);
+  }
+
+  function scrollToBottom() {
+    const historyDiv = document.getElementById('chat-history');
+    historyDiv.scrollTop = historyDiv.scrollHeight;
+  }
+
+  function sendAdminMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text || !currentChatUserId) return;
+    
+    const msgData = {
+      user_id: currentChatUserId,
+      sender: 'admin',
+      message: text
+    };
+    
+    socket.emit('send_message', msgData);
+    appendMessage(msgData);
+    scrollToBottom();
+    input.value = '';
+    
+    // Refresh user list biar naik
+    loadChatUsers();
   }
 
   // =============================

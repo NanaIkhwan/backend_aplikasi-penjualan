@@ -87,6 +87,17 @@ initConnection.connect((err) => {
         )
       `;
 
+      const createChatsTable = `
+        CREATE TABLE IF NOT EXISTS chats (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          user_id INT NOT NULL,
+          sender ENUM('user', 'admin') NOT NULL,
+          message TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      `;
+
       initConnection.query(createUsersTable, (err) => {
         if (err) throw err;
         console.log('✅ Tabel users siap.');
@@ -106,7 +117,12 @@ initConnection.connect((err) => {
       initConnection.query(createCartsTable, (err) => {
         if (err) throw err;
         console.log('✅ Tabel carts siap.');
-        initConnection.end();
+        
+        initConnection.query(createChatsTable, (err) => {
+          if (err) throw err;
+          console.log('✅ Tabel chats siap.');
+          initConnection.end();
+        });
       });
     });
   });
