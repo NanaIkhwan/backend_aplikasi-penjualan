@@ -612,6 +612,9 @@
       }
     } catch (err) {
       showToast('Tidak dapat terhubung ke server!', true);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💾 Simpan Produk';
     }
   }
 
