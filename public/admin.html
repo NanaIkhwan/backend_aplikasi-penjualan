@@ -964,8 +964,6 @@
     };
     
     socket.emit('send_message', msgData);
-    appendMessage(msgData);
-    scrollToBottom();
     input.value = '';
     
     // Refresh user list biar naik
