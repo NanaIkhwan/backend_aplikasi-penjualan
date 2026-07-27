@@ -85,7 +85,8 @@ app.post('/api/auth/register', async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Nama, email, dan password wajib diisi' });
     }
-    const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+    const cleanEmail = email.trim();
+    const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [cleanEmail]);
     if (existing.length > 0) {
       return res.status(400).json({ error: 'Email sudah terdaftar' });
     }
@@ -93,7 +94,7 @@ app.post('/api/auth/register', async (req, res) => {
     const userRole = role === 'admin' ? 'admin' : 'user';
     const [result] = await db.query(
       'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, userRole]
+      [name, cleanEmail, hashedPassword, userRole]
     );
     res.status(201).json({ message: 'Registrasi berhasil', userId: result.insertId });
   } catch (error) {
@@ -106,7 +107,8 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    const cleanEmail = email ? email.trim() : '';
+    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [cleanEmail]);
     if (users.length === 0) {
       return res.status(401).json({ error: 'Email atau password salah' });
     }
@@ -134,18 +136,19 @@ app.put('/api/auth/profile', authenticateToken, async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: 'Email tidak boleh kosong' });
     }
+    const cleanEmail = email.trim();
     
     // Pastikan email tidak dipakai user lain (kecuali diri sendiri)
-    const [existing] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [email, req.user.userId]);
+    const [existing] = await db.query('SELECT id FROM users WHERE email = ? AND id != ?', [cleanEmail, req.user.userId]);
     if (existing.length > 0) {
       return res.status(400).json({ error: 'Email sudah terdaftar oleh akun lain' });
     }
 
     if (newPassword && newPassword.trim() !== '') {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await db.query('UPDATE users SET email = ?, password = ? WHERE id = ?', [email, hashedPassword, req.user.userId]);
+      await db.query('UPDATE users SET email = ?, password = ? WHERE id = ?', [cleanEmail, hashedPassword, req.user.userId]);
     } else {
-      await db.query('UPDATE users SET email = ? WHERE id = ?', [email, req.user.userId]);
+      await db.query('UPDATE users SET email = ? WHERE id = ?', [cleanEmail, req.user.userId]);
     }
     
     res.json({ message: 'Profil berhasil diperbarui' });
