@@ -410,6 +410,8 @@
   function logout() {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_name');
+    localStorage.removeItem('admin_user');
+    localStorage.removeItem('activeAdminSection');
     token = null;
     document.getElementById('login-page').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
