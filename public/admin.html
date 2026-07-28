@@ -555,7 +555,7 @@
       document.getElementById('stat-products').textContent = products.length;
       document.getElementById('stat-orders').textContent = orders.length;
 
-      const revenue = orders.reduce((sum, o) => sum + parseFloat(o.total_price || 0), 0);
+      const revenue = orders.reduce((sum, o) => o.status !== 'Dibatalkan' ? sum + parseFloat(o.total_price || 0) : sum, 0);
       document.getElementById('stat-revenue').textContent = formatPrice(revenue);
 
       // Recent orders (last 5)
