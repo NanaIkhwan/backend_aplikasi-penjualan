@@ -473,6 +473,25 @@
     document.getElementById('app').style.display = 'none';
   }
 
+  let autoLogoutTimer = null;
+  function setupAutoLogout() {
+    if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+    if (!token) return;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expTime = payload.exp * 1000;
+      const timeLeft = expTime - Date.now();
+      if (timeLeft > 0) {
+        autoLogoutTimer = setTimeout(() => {
+          showToast('Sesi 1 jam Anda telah berakhir. Silakan login kembali.', true);
+          logout();
+        }, timeLeft);
+      } else {
+        logout();
+      }
+    } catch(e) {}
+  }
+
   function showApp() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -482,6 +501,8 @@
     loadUsers();
     initSocket();
     
+    setupAutoLogout(); // Mulai timer auto-logout
+
     // Restore tab yang aktif sebelumnya
     const savedSection = localStorage.getItem('activeAdminSection') || 'dashboard';
     const navItem = document.querySelector(`.sidebar nav a[onclick*="${savedSection}"]`);
