@@ -418,3 +418,63 @@
   outline: none;
   border-color: #3b82f6;
 }
+
+/* ==================================
+   MOBILE RESPONSIVENESS
+   ================================== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid #243447;
+  }
+  .sidebar .brand { border-bottom: none; margin-bottom: 0; padding: 0; }
+  .sidebar nav {
+    display: flex;
+    overflow-x: auto;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+    padding-bottom: 10px;
+  }
+  .sidebar nav a { 
+    padding: 8px 12px; 
+    font-size: 12px; 
+    white-space: nowrap;
+    border-right: none;
+    border-bottom: 3px solid transparent;
+  }
+  .sidebar nav a:hover, .sidebar nav a.active {
+    border-right: none;
+    border-bottom: 3px solid #3b82f6;
+  }
+  .logout-btn { 
+    position: static; 
+    width: auto; 
+    padding: 0; 
+  }
+  
+  .main-content { margin-left: 0; padding: 15px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+  
+  .chat-container { flex-direction: column; height: 75vh; }
+  .chat-sidebar { 
+    width: 100%; 
+    height: 120px; 
+    overflow-y: auto; 
+    border-right: none; 
+    border-bottom: 1px solid #243447; 
+  }
+  .chat-users-list { display: flex; flex-direction: row; overflow-x: auto; overflow-y: hidden; }
+  .chat-user-item { border-bottom: none; border-right: 1px solid #243447; min-width: 150px; }
+  
+  /* tables responsive */
+  .table-container { overflow-x: auto; }
+}
