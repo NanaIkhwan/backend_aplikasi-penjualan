@@ -185,11 +185,12 @@
               <th>Pembeli</th>
               <th>Qty</th>
               <th>Total</th>
+              <th>Status</th>
               <th>Tanggal</th>
             </tr>
           </thead>
           <tbody id="recent-orders-body">
-            <tr><td colspan="6" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+            <tr><td colspan="7" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -304,11 +305,12 @@
               <th>Qty</th>
               <th>Total</th>
               <th>Lokasi GPS</th>
+              <th>Status</th>
               <th>Tanggal</th>
             </tr>
           </thead>
           <tbody id="orders-body">
-            <tr><td colspan="7" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
+            <tr><td colspan="8" style="text-align:center; color:#888; padding:30px">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -568,6 +570,7 @@
             <td>${o.user_name}</td>
             <td>${o.quantity} pcs</td>
             <td class="price-text">${formatPrice(o.total_price)}</td>
+            <td><span class="badge" style="background:${o.status === 'Lunas/Diproses' ? '#10b981' : (o.status === 'Dibatalkan' ? '#ef4444' : '#f59e0b')}; color:white">${o.status}</span></td>
             <td class="text-muted">${formatDate(o.order_date)}</td>
           </tr>`).join('');
     } catch (err) {
@@ -846,6 +849,7 @@
             <td style="font-size:11px; color:#888">
               ${o.latitude ? `${parseFloat(o.latitude).toFixed(5)}, ${parseFloat(o.longitude).toFixed(5)}` : '-'}
             </td>
+            <td><span class="badge" style="background:${o.status === 'Lunas/Diproses' ? '#10b981' : (o.status === 'Dibatalkan' ? '#ef4444' : '#f59e0b')}; color:white">${o.status}</span></td>
             <td class="text-muted">${formatDate(o.order_date)}</td>
           </tr>`).join('');
     } catch (err) {

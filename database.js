@@ -67,8 +67,8 @@ initConnection.connect((err) => {
           product_id INT,
           quantity INT NOT NULL,
           total_price DECIMAL(10, 2) NOT NULL,
-          latitude DECIMAL(10, 8),
           longitude DECIMAL(11, 8),
+          status VARCHAR(50) DEFAULT 'Menunggu Pembayaran',
           order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id),
           FOREIGN KEY (product_id) REFERENCES products(id)
@@ -103,26 +103,26 @@ initConnection.connect((err) => {
         console.log('✅ Tabel users siap.');
       });
 
+      initConnection.query(createUsersTable, (err) => { if (err) console.error(err); });
       initConnection.query(createProductsTable, (err) => {
-        if (err) throw err;
-        console.log('✅ Tabel products siap.');
+        if (err) console.error(err);
         initConnection.query('ALTER TABLE products ADD COLUMN category VARCHAR(100)', () => {});
       });
 
       initConnection.query(createOrdersTable, (err) => {
-        if (err) throw err;
-        console.log('✅ Tabel orders siap.');
+        if (err) console.error(err);
+        else {
+          // Add status column to existing table just in case
+          initConnection.query(`ALTER TABLE orders ADD COLUMN status VARCHAR(50) DEFAULT 'Menunggu Pembayaran'`, (err) => {
+            // Ignore error if column already exists
+          });
+        }
       });
-
-      initConnection.query(createCartsTable, (err) => {
-        if (err) throw err;
-        console.log('✅ Tabel carts siap.');
-        
-        initConnection.query(createChatsTable, (err) => {
-          if (err) throw err;
-          console.log('✅ Tabel chats siap.');
-          initConnection.end();
-        });
+      initConnection.query(createCartsTable, (err) => { if (err) console.error(err); });
+      initConnection.query(createChatsTable, (err) => {
+        if (err) console.error(err);
+        console.log('✅ Tabel chats siap.');
+        initConnection.end();
       });
     });
   });

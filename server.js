@@ -353,8 +353,8 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
     }
     const total_price = product.price * quantity;
     const [result] = await db.query(
-      'INSERT INTO orders (user_id, product_id, quantity, total_price, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)',
-      [user_id, product_id, quantity, total_price, latitude, longitude]
+      'INSERT INTO orders (user_id, product_id, quantity, total_price, latitude, longitude, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [user_id, product_id, quantity, total_price, latitude, longitude, 'Menunggu Pembayaran']
     );
     await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [quantity, product_id]);
     res.status(201).json({ message: 'Checkout berhasil!', orderId: result.insertId });
@@ -367,9 +367,12 @@ app.post('/api/orders', authenticateToken, async (req, res) => {
 // Get daftar pesanan (user = pesanannya sendiri, admin = semua)
 app.get('/api/orders', authenticateToken, async (req, res) => {
   try {
+    // Auto-update status pesanan yang lewat dari 60 menit
+    await db.query(`UPDATE orders SET status = 'Lunas/Diproses' WHERE status = 'Menunggu Pembayaran' AND TIMESTAMPDIFF(MINUTE, order_date, NOW()) >= 60`);
+
     const { userId, role } = req.user;
     let query = `
-      SELECT o.id, o.product_id, o.quantity, o.total_price, o.latitude, o.longitude, o.order_date,
+      SELECT o.id, o.product_id, o.quantity, o.total_price, o.latitude, o.longitude, o.order_date, o.status,
              p.name AS product_name, p.image_url,
              u.name AS user_name
       FROM orders o
@@ -384,6 +387,38 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
     query += ' ORDER BY o.order_date DESC';
     const [orders] = await db.query(query, params);
     res.json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+  }
+});
+
+// Batalkan pesanan
+app.put('/api/orders/:id/cancel', authenticateToken, async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { userId, role } = req.user;
+    
+    // Cari pesanan
+    const [orders] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    if (orders.length === 0) return res.status(404).json({ error: 'Pesanan tidak ditemukan' });
+    
+    const order = orders[0];
+    
+    // Pastikan user adalah pemilik pesanan
+    if (role !== 'admin' && order.user_id !== userId) {
+      return res.status(403).json({ error: 'Anda tidak berhak membatalkan pesanan ini' });
+    }
+    
+    if (order.status !== 'Menunggu Pembayaran') {
+      return res.status(400).json({ error: 'Pesanan tidak dapat dibatalkan (sudah diproses/dibatalkan)' });
+    }
+    
+    // Update status dan kembalikan stok
+    await db.query("UPDATE orders SET status = 'Dibatalkan' WHERE id = ?", [orderId]);
+    await db.query('UPDATE products SET stock = stock + ? WHERE id = ?', [order.quantity, order.product_id]);
+    
+    res.json({ message: 'Pesanan berhasil dibatalkan' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });
